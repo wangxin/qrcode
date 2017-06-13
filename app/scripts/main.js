@@ -25,7 +25,6 @@
     var cameraManager = new CameraManager('camera');
     var qrCodeManager = new QRCodeManager('qrcode');
 
-
     cameraManager.onframe = function() {
       // There is a frame in the camera, what should we do with it?
 
@@ -35,7 +34,6 @@
           qrCodeManager.showDialog(url);
         }
       });
-
     };
   };
 
@@ -46,22 +44,28 @@
     var qrcodeNavigate = root.querySelector(".QRCodeSuccessDialog-navigate");
     var qrcodeIgnore = root.querySelector(".QRCodeSuccessDialog-ignore");
 
-    var client = new QRClient();
+    // var client = new QRClient();
+    var worker = new Worker('scripts/qrworker.js');
 
     var self = this;
 
     this.currentUrl = undefined;
 
-
     this.detectQRCode = function(imageData, callback) {
       callback = callback || function() {};
 
-      client.decode(imageData, function(result) {
-        if(result !== undefined) {
-          self.currentUrl = result;
-        }
-        callback(result);
+      worker.postMessage(imageData);
+
+      worker.addEventListener('message', function(e) {
+        callback(e.data);
       });
+
+      // client.decode(imageData, function(result) {
+      //   if(result !== undefined) {
+      //     self.currentUrl = result;
+      //   }
+      //   callback(result);
+      // });
     };
 
     this.showDialog = function(url) {
