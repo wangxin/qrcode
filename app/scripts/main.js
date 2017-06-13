@@ -191,6 +191,7 @@
       if(self.onframe) self.onframe();
 
       coordinatesHaveChanged = false;
+      requestAnimationFrame(captureFrame);
     };
 
     var getCamera = function(videoSource, cb) {
@@ -221,26 +222,26 @@
 
           var isSetup = setupVariables(e);
 
-          var showVideo = function() {
-            if(isSetup) {
-              (captureFrame.bind(self))()
-            }
-            requestAnimationFrame(showVideo);
+          // var showVideo = function() {
+          //   if(isSetup) {
+          //     (captureFrame.bind(self))()
+          //   }
+          //   requestAnimationFrame(showVideo);
+          // }
+          // showVideo();
+
+          if(isSetup) {
+            requestAnimationFrame(captureFrame.bind(self), 4);
           }
-          showVideo();
+          else {
+            // This is just to get around the fact that the videoWidth is not
+            // available in Firefox until sometime after the data has loaded.
+            setTimeout(function() {
+              setupVariables(e);
 
-          // if(isSetup) {
-          //   setInterval(captureFrame.bind(self), 4);
-          // }
-          // else {
-          //   // This is just to get around the fact that the videoWidth is not
-          //   // available in Firefox until sometime after the data has loaded.
-          //   setTimeout(function() {
-          //     setupVariables(e);
-
-          //     setInterval(captureFrame.bind(self), 4);
-          //   }, 100);
-          // }
+              requestAnimationFrame(captureFrame.bind(self), 4);
+            }, 100);
+          }
 
           // The video is ready, and the camerea captured
           if(videoSource === undefined) {
